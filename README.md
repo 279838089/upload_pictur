@@ -3,3 +3,6 @@
 
 1.0
 ![image](https://raw.githubusercontent.com/279838089/upload_pictur/master/up/saier.png)
+
+1.1  美化+注释+增加旋转照片的功能
+![image](https://raw.githubusercontent.com/279838089/upload_pictur/master/up/saier2.png)

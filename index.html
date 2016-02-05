@@ -2,7 +2,9 @@
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<script src="http://cdn.bootcss.com/jquery/1.8.3/jquery.min.js"></script>
+	
+	<link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" rel="stylesheet">
+	<link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -10,16 +12,22 @@
 	<div id="upLoadFile">
 	<input type="file"  name="upfile" id="photo" onchange="upload();">
 	</div>
+	<!--存储关联id，方便扩展 -->
 	<input id="id" name="id" type="hidden" value="1"/>
 	<input id="type" name="type" type="hidden" value="upload"/>
-	<input type="hidden" id="all_image" value="">
+	
 </form>
-
+<!-- 显示图片，不用于提交 -->
 <div id="image" class="image"></div>
-<div id="return_text"></div>
+<!-- 显示提示的内容-->
+<p class="bg-danger pull-left" id="return_text"></p>
+<!--iframe 模拟提交 -->
 <iframe id="upframe" name="upframe" style="display:none"></iframe>
 
+	<!--存储所有的图片地址，方便后续提交 -->
+	<input type="hidden" id="all_image" value="">
 </body>
+<script src="//cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
 
 <script type="text/javascript">
 	function upload(){
@@ -39,32 +47,49 @@
     	$("#all_image").val(image);
     	n='picture'+n;
 		
-		$('#image').append('<div id="'+n+'" style="float:left;"><a href="'+data+'"  target="_blank"><img src="'+data+'"  height=80 width=80 /></a><div class="del"><a href="#" onclick=del("'+n+'");return false;>删除</a></div></div>');
+		$('#image').append('<div id="'+n+'" class="pull-left"><a href="'+data+'"  target="_blank"><img src="'+data+'"  class="img-circle" style="width: 140px; height: 140px;"/></a><div><button type="button" class="btn btn-default" onclick=turn("'+n+'","90")><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true" ></span><button type="button" class="btn btn-default" onclick=del("'+n+'")><span class="glyphicon glyphicon-remove" aria-hidden="true" ></span><button type="button" class="btn btn-default" onclick=turn("'+n+'","-90")><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true" ></span></div></div>');
 		$('#upLoadFile').html('<input type="file"  name="upfile" id="photo" onchange="upload();">');
+		
+		$('#return_text').html('');
 		
 	}
 	
-	function del(delName){			//点击删除链接，ajax
+	function del(delName){
 		var d='#'+delName;
 		//删除的图片
-		img=$(d+" img").attr('src');
+		img=$(d+" a").attr('href');
 		//全部的图片
 		all_img=$("#all_image").val();
-		//全部图片里面把删除的图片替换成空
-		str=all_img.replace(img+';',"");
-		str=str.replace(img,"");
-		
-		$("#all_image").val(str);
-		
-		$(d).html("success");	
-        $(d).hide(300);							//自动隐藏
 		
 		$.ajax({
 				type: "POST", //提交的类型
 				url: "upload.php",
 				data:{type:"del_photo",name:img},//参数
 				success: function(msg){ //回调方法
-				
+					
+					//全部图片里面把删除的图片替换成空
+					str=all_img.replace(img+';',"");
+					str=str.replace(img,"");
+					
+					$("#all_image").val(str);
+					
+					$(d).html("success");	
+					$(d).hide(300);							//自动隐藏
+				}
+		})
+    }
+	
+	function turn(delName,degrees){
+		var d='#'+delName;
+		img=$(d+" a").attr('href');
+		image=$("#image").html();
+		
+		$.ajax({
+				type: "POST", //提交的类型
+				url: "upload.php",
+				data:{type:"turn_photo",name:img,degrees:degrees},//参数
+				success: function(msg){ //回调方法
+					$(d+" img").attr('src',img+ "?temp=" + Math.random());
 				}
 		})
     }

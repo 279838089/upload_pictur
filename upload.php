@@ -83,4 +83,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['type']=='del_photo')
 	unlink($filepath); //删除文件 
 }
 
+/**
+  * 修改一个图片 让其翻转指定度数
+  * 
+  * @param string  $filename 文件名（包括文件路径）
+  * @param string  $src 输出文件名（包括文件路径）
+  * @param  float $degrees 旋转度数 -90顺时针 90逆时针
+
+  */
+ function  flip($filename,$src,$degrees = 90)
+ {
+	  //读取图片
+	  $data = @getimagesize($filename);
+	  if($data==false)return false;
+	  //读取旧图片
+	  switch ($data[2]) {
+	   case 1:
+		$src_f = imagecreatefromgif($filename);break;
+	   case 2:
+		$src_f = imagecreatefromjpeg($filename);break;
+	   case 3:
+		$src_f = imagecreatefrompng($filename);break;
+	  } 
+	  if($src_f=="")return false;
+	  $rotate = @imagerotate($src_f, $degrees,0);
+	  if(!imagejpeg($rotate,$src,100))return false;
+	  @imagedestroy($rotate);
+	  return true;
+ }
+ 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['type']=='turn_photo')
+{
+	$filepath = $_POST['name'];
+	$degrees = $_POST['degrees'];
+	flip($filepath,$filepath,$degrees);
+} 
+
 ?>
